@@ -1,3 +1,3 @@
-@main def hello: Unit = 
+@main def main(): Unit =
   Day1()
   Day2()
