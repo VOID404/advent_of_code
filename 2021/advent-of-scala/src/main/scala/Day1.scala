@@ -1,7 +1,7 @@
 import scala.io.Source
 
 object Day1 extends Day {
-  val inputFile = "inputs/day1.txt"
+  val inputFile = "day1.txt"
 
   implicit def parse(d: Iterable[String]): Iterable[Int] = d.map(_.toInt)
 

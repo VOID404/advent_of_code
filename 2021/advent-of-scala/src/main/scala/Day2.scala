@@ -3,7 +3,7 @@ import scala.runtime.stdLibPatches.language.unsafeNulls
 import scala.annotation.targetName
 
 object Day2 extends Day {
-  override val inputFile = "inputs/day2.txt"
+  override val inputFile = "day2.txt"
 
   case class Position(val x: Int = 0, val y: Int = 0)
   case class Command(val cmd: Cmd, val arg: Int) {
