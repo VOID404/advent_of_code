@@ -17,9 +17,8 @@ object Day1 extends Day {
       .sliding(2, 1)
       .count(s => s(0) < s(1))
 
-  def apply(): Unit = {
+  def apply(): Unit = 
     println(s"""Day1:
                 |- part 1: ${partOne()}
                 |- part 2: ${partTwo()}""".stripMargin)
-  }
 }
