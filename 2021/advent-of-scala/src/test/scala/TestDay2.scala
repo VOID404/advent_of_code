@@ -11,12 +11,10 @@ class TestDay2:
       "down 8",
       "forward 2"
     )
-    val res = Day2.partOne(cmds)
-    assertEquals(res, 150)
+    assertEquals(150, Day2.partOne(cmds))
 
   @Test def partOne(): Unit =
-    val res = Day2.partOne()
-    assertEquals(res, 1561344)
+    assertEquals(1561344, Day2.partOne())
   
   @Test def exampleV2(): Unit =
     val cmds = List(
@@ -27,9 +25,7 @@ class TestDay2:
       "down 8",
       "forward 2"
     )
-    val res = Day2.partTwo(cmds)
-    assertEquals(res, 900)
+    assertEquals(900, Day2.partTwo(cmds))
   
   @Test def partTwo(): Unit =
-    val res = Day2.partTwo()
-    assertEquals(res, 1848454425)
+    assertEquals(1848454425, Day2.partTwo())

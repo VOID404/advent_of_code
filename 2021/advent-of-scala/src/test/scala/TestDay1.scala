@@ -3,7 +3,7 @@ import org.junit.Assert.*
 
 class TestDay1:
   @Test def partOne(): Unit =
-    assertEquals(Day1.partOne(), 1139)
+    assertEquals(1139, Day1.partOne())
 
   @Test def partTwo(): Unit =
-    assertEquals(Day1.partTwo(), 1103)
+    assertEquals(1103, Day1.partTwo())
