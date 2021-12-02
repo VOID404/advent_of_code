@@ -55,4 +55,9 @@ object Day2 extends Day {
   def partTwo(cmds: Iterable[Command] = data): Int =
     val pos = cmds.foldLeft(Position2())((p, c) => c(p))
     pos.x * pos.y
+
+  def apply(): Unit = 
+    println(s"""Day2:
+                |- part 1: ${partOne()}
+                |- part 2: ${partTwo()}""".stripMargin)
 }
