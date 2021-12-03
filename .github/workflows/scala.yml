@@ -1,0 +1,24 @@
+name: Scala CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  aoc2021:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./2021/advent-of-scala
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+    - name: Run tests
+      run: sbt test

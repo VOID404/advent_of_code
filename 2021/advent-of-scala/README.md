@@ -1,4 +1,4 @@
-# Advent Of Code 2021
+# Advent Of Code 2021 [![Scala CI](https://github.com/VOID404/advent_of_code/actions/workflows/scala.yml/badge.svg)](https://github.com/VOID404/advent_of_code/actions/workflows/scala.yml)
 
 This repo contains my solutions for Advent Of Code 2021 written in Scala.
 
