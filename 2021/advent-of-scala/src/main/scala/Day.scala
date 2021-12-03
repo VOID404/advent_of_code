@@ -12,5 +12,5 @@ abstract class Day {
     Source
       .fromFile(basePath.resolve(inputFile).toString)
       .getLines
-      .toIterable
+      .to(Iterable)
 }
