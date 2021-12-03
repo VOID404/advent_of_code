@@ -1,8 +1,25 @@
-## sbt project compiled with Scala 3
+# Advent Of Code 2021
 
-### Usage
+This repo contains my solutions for Advent Of Code 2021 written in Scala.
 
-This is a normal sbt project. You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
+## Usage
 
-For more information on the sbt-dotty plugin, see the
-[scala3-example-project](https://github.com/scala/scala3-example-project/blob/main/README.md).
+You'll need [`sbt`](https://www.scala-sbt.org/).
+
+You can compile code with `sbt compile`, run it with `sbt run`, and `sbt console` will start a Scala 3 REPL.
+
+You can also compile it into a [fat jar](https://stackoverflow.com/questions/11947037/what-is-an-uber-jar)
+wit `sbt assembly`.
+
+By default it uses my inputs, butyou can replace them with your own as long as you name them as follows:
+- `day1.txt`
+- `day2.txt`
+- ...
+
+Put the files into `./inputs/` and you're good to go.
+
+To run tests use `sbt test`. Test cover both examples and my inputs.
+
+### Docker
+
+Project is dockerized. You can build the image and run it to print results for all days. You can mount your own inputs with `-v <your inputs path>:/advent-of-scala/inputs` parameter.
