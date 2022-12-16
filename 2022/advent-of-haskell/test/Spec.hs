@@ -1,10 +1,11 @@
-import Day01
-import Day02
-import Day03
-import Day04
-import Day05
-import Day06
-import Test.Hspec
+import           Day01
+import           Day02
+import           Day03
+import           Day04
+import           Day05
+import           Day06
+import           Day07
+import           Test.Hspec
 
 main :: IO ()
 main = hspec $ do
@@ -85,3 +86,17 @@ main = hspec $ do
       map Day06.bonus Day06.samples `shouldBe` Day06.resultsBonus
     it "bonus real" $
       Day06.bonus input `shouldBe` 2202
+
+  describe "day07" $ do
+    input <- runIO $ readFile "./inputs/day07.txt"
+
+    it "basic sample" $
+      Day07.basic Day07.sample `shouldBe` 95437
+
+    it "basic real" $
+      Day07.basic input `shouldBe` 1543140
+
+    it "bonus sample" $
+      Day07.bonus Day07.sample `shouldBe` 24933642
+    it "bonus real" $
+      Day07.bonus input `shouldBe` 1117448
