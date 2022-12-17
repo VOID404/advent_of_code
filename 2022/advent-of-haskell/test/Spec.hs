@@ -5,6 +5,7 @@ import           Day04
 import           Day05
 import           Day06
 import           Day07
+import           Day08
 import           Test.Hspec
 
 main :: IO ()
@@ -92,7 +93,6 @@ main = hspec $ do
 
     it "basic sample" $
       Day07.basic Day07.sample `shouldBe` 95437
-
     it "basic real" $
       Day07.basic input `shouldBe` 1543140
 
@@ -100,3 +100,17 @@ main = hspec $ do
       Day07.bonus Day07.sample `shouldBe` 24933642
     it "bonus real" $
       Day07.bonus input `shouldBe` 1117448
+
+  describe "day08" $ do
+    input <- runIO $ readFile "./inputs/day08.txt"
+
+    it "basic sample" $
+      Day08.basic Day08.sample `shouldBe` 21
+    it "basic real" $
+      Day08.basic input `shouldBe` 1543
+
+    {-
+    it "bonus sample" $
+      Day08.bonus Day08.sample `shouldBe` 24933642
+    it "bonus real" $
+      Day08.bonus input `shouldBe` 1117448 -}
