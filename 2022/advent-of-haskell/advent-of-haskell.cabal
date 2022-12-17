@@ -33,7 +33,9 @@ library
       Day06
       Day07
       Day08
-      Lib
+      Utils.Day01
+      Utils.Day03
+      Utils.Day08
   other-modules:
       Paths_advent_of_haskell
   hs-source-dirs:
@@ -44,29 +46,25 @@ library
     , lens
   default-language: Haskell2010
 
-executable advent-of-haskell-exe
-  main-is: Main.hs
-  other-modules:
-      Paths_advent_of_haskell
-  hs-source-dirs:
-      app
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      advent-of-haskell
-    , base >=4.7 && <5
-    , lens
-  default-language: Haskell2010
-
 test-suite advent-of-haskell-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Days.Day01Spec
+      Days.Day02Spec
+      Days.Day03Spec
+      Days.Day04Spec
+      Days.Day05Spec
+      Days.Day06Spec
+      Days.Day07Spec
+      Days.Day08Spec
       Paths_advent_of_haskell
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      advent-of-haskell
+      QuickCheck
+    , advent-of-haskell
     , base >=4.7 && <5
     , hspec
     , lens

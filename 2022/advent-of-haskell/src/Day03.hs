@@ -5,27 +5,16 @@ module Day03
   )
 where
 
-import Data.List (nub)
-import GHC.Base (divInt, ord)
+import           Data.Char   (isAsciiLower, isAsciiUpper)
+import           Data.List   (nub)
+import           GHC.Base    (divInt, ord)
+import           Utils.Day03
 
-common :: Eq a => ([a], [a]) -> [a]
-common (l1, l2) = commonR l1 []
-  where
-    commonR [] acc = acc
-    commonR (a : as) acc
-      | a `elem` l2 = commonR as (a : acc)
-      | otherwise = commonR as acc
-
+score :: Char -> Int
 score c
-  | c >= 'a' && c <= 'z' = (ord c - ord 'a') + 1
-  | c >= 'A' && c <= 'Z' = (ord c - ord 'A') + 27
+  | isAsciiLower c = ord c - ord 'a' + 1
+  | isAsciiUpper c = ord c - ord 'A' + 27
   | otherwise = error "Not a letter"
-
-tripplets :: [c] -> [(c, c, c)]
-tripplets l = tripR l []
-  where
-    tripR (a : b : c : t) acc = tripR t ((a, b, c) : acc)
-    tripR _ acc = acc
 
 basic :: String -> Int
 basic =
@@ -39,6 +28,7 @@ basic =
       )
     . lines
 
+bonus :: String -> Int
 bonus =
   sum
     . map

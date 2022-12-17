@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveFoldable    #-}
-{-# LANGUAGE DeriveFunctor     #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE TemplateHaskell   #-}
@@ -12,9 +10,10 @@ module Day07
   )
 where
 import           Control.Applicative ((<|>))
-import           Control.Lens
-import           Data.Foldable
-
+import           Control.Lens        (At (..), Index, IxValue, Ixed (..), lens,
+                                      makeLenses, mapped, to, (%~), (&), (.~),
+                                      (<&>), (^.), (^?))
+import           Data.Foldable       (Foldable (fold))
 
 data Tree a b
   = Tree { _crumb    :: a
@@ -55,10 +54,10 @@ treeSize Tree{ _branches = bs
   where
     size (File s _) = s
     size (Dir _ )   = 0
-    files = sum $ fs & mapped %~ size
+    files = sum $ fs <&> size
     children = map treeSize bs
 
-ensurePath :: Eq a => Show a => [a] -> Tree a b -> Tree a b
+ensurePath :: Eq a => [a] -> Tree a b -> Tree a b
 ensurePath p t = case t ^? ix p of
                    Nothing -> t & ix (noLast p)
                                 . branches
@@ -93,6 +92,7 @@ data WalkState = WalkState { _dir     :: [String]
 
 makeLenses ''WalkState
 
+parseFS :: [String] -> [FS]
 parseFS = map pfs
   where
     pfs l = case words l of
@@ -119,6 +119,7 @@ parseCommands lines = go lines (WalkState { _dir = []
                                         . values %~ (l ++)
                        in go t newState
 
+    pcmd [] = error "Can't parse no lines as command"
     pcmd (l:ls) -- parse a command
       | isCmd l = case words l of
                     ["$", "cd", "/"]  -> (CdRoot, ls)
@@ -137,7 +138,7 @@ basic = sum
         . parseCommands
         . lines
 
--- bonus :: String -> Int
+bonus :: String -> Int
 bonus is = foldr min maxBound
            . filter (>=needed) $ sizes
         where

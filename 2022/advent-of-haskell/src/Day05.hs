@@ -5,10 +5,10 @@ module Day05
   )
 where
 
-import Control.Exception (Exception, throw)
-import Control.Lens
-import Data.Char (isAlpha, isAlphaNum)
-import Data.List (transpose)
+import           Control.Exception (Exception)
+import           Control.Lens
+import           Data.Char         (isAlpha, isAlphaNum)
+import           Data.List         (transpose)
 
 data BadStack = BadStack [String] Move deriving (Show)
 
@@ -19,14 +19,14 @@ basic input = map head $ foldl (flip perform) stacks moves
   where
     (stacks, moves) = case break (== "") $ lines input of
       (s, "" : m) -> (parseStacks s, parseMoves m)
-      _ -> error "Invalid input"
+      _           -> error "Invalid input"
 
 bonus :: String -> String
 bonus input = map head $ foldl (flip perform2) stacks moves
   where
     (stacks, moves) = case break (== "") $ lines input of
       (s, "" : m) -> (parseStacks s, parseMoves m)
-      _ -> error "Invalid input"
+      _           -> error "Invalid input"
 
 parseStacks :: [String] -> [String]
 parseStacks =
@@ -36,15 +36,15 @@ parseStacks =
 
 data Move = Move
   { amount :: Int,
-    from :: Int,
-    to :: Int
+    from   :: Int,
+    to     :: Int
   }
   deriving (Show)
 
 parseMove :: String -> Move
 parseMove s = case words s of
   ["move", n, "from", a, "to", b] -> Move (read n) (read a - 1) (read b - 1)
-  _ -> error "Bad move line"
+  _                               -> error "Bad move line"
 
 parseMoves :: [String] -> [Move]
 parseMoves = map parseMove
