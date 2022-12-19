@@ -33,6 +33,7 @@ library
       Day06
       Day07
       Day08
+      Day09
       Utils.Day01
       Utils.Day03
       Utils.Day08
@@ -58,6 +59,7 @@ test-suite advent-of-haskell-test
       Days.Day06Spec
       Days.Day07Spec
       Days.Day08Spec
+      Days.Day09Spec
       Paths_advent_of_haskell
   hs-source-dirs:
       test
