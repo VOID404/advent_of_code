@@ -14,22 +14,43 @@ shortMap = go (-1)
     go _ []     = []
     go m (t:ts) = (t > m) : go (max t m) ts
 
-visMatrix :: [[Int]] -> [[Bool]]
+scenicMap :: [Int] -> [Int]
+scenicMap = go []
+  where
+    go :: [Int] -> [Int] -> [Int]
+    go _ []      = []
+    go lt (t:rt) = countView lt t : go (t : lt) rt
+
+countView :: [Int] -> Int -> Int
+countView = go 0
+  where
+    go acc [] _ = acc
+    go acc (l:ls) t
+      | l < t  = go (acc + 1) ls t
+      | l == t = acc + 1
+      | l > t  = acc + 1
+
+visMatrix :: Matrix Int -> Matrix Bool
 visMatrix ts = mergedMask
   where
-    sides :: [[[Bool]]]
-    sides = map (`rotatedShorts` ts) [0..3]
+    sides :: [Matrix Bool]
+    sides = performRotated (map shortMap) ts
 
-    rotatedShorts :: Int -> [[Int]] -> [[Bool]]
-    rotatedShorts n = funRepeat (4 - n) rotate . map shortMap . funRepeat n rotate
+    mergedMask = foldr1 (zipMatrixWith (||)) sides
 
-    mergeMasks :: [[Bool]] -> [[Bool]] -> [[Bool]]
-    mergeMasks = zipWith (zipWith (||))
+scenicMatrix :: Matrix Int -> Matrix Int
+scenicMatrix ts = mergedMask
+  where
+    sides :: [Matrix Int]
+    sides = performRotated (map scenicMap) ts
 
-    mergedMask = foldr1 mergeMasks sides
+    mergedMask = foldr1 (zipMatrixWith (*)) sides
 
 basic :: String -> Int
 basic = length . filter id . concat . visMatrix . toTrees . lines
+
+bonus :: String -> Int
+bonus = maximum . concat . scenicMatrix . toTrees . lines
 
 sample :: String
 sample = "30373\n\

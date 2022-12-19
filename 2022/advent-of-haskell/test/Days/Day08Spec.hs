@@ -28,12 +28,13 @@ spec = do
 
   input <- runIO $ readFile "./inputs/day08.txt"
   describe "basic" $ do
-    it "basic sample" $
+    it "sample" $
       Day08.basic Day08.sample `shouldBe` 21
-    it "basic real" $
+    it "real" $
       Day08.basic input `shouldBe` 1543
-    {-
-    it "bonus sample" $
-      Day08.bonus Day08.sample `shouldBe` 24933642
-    it "bonus real" $
-      Day08.bonus input `shouldBe` 1117448 -}
+
+  describe "bonus" $ do
+    it "sample" $
+      Day08.bonus Day08.sample `shouldBe` 8
+    it "real" $
+      Day08.bonus input `shouldBe` 595080
