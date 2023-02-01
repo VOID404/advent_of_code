@@ -1,6 +1,9 @@
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeApplications  #-}
 {-# LANGUAGE TypeFamilies      #-}
 
 module Day07
@@ -9,19 +12,18 @@ module Day07
   , sample
   )
 where
-import           Control.Applicative ((<|>))
-import           Control.Lens        (At (..), Index, IxValue, Ixed (..), lens,
-                                      makeLenses, mapped, to, (%~), (&), (.~),
-                                      (<&>), (^.), (^?))
-import           Data.Foldable       (Foldable (fold))
+import           Control.Applicative   ((<|>))
+import           Data.Foldable         (Foldable (fold))
+import           Data.Generics.Product (HasField (field))
+import           GHC.Generics          (Generic)
+import           Optics
 
 data Tree a b
-  = Tree { _crumb    :: a
-         , _values   :: [b]
-         , _branches :: [Tree a b]
-         } deriving (Show, Functor, Foldable, Traversable)
+  = Tree { crumb    :: a
+         , values   :: [b]
+         , branches :: [Tree a b]
+         } deriving (Show, Generic, Functor, Foldable, Traversable)
 
-makeLenses ''Tree
 
 type instance Index (Tree a b) = [a]
 type instance IxValue (Tree a b) = Tree a b
@@ -30,26 +32,26 @@ instance Eq a => At (Tree a b) where
   at p = lens (get p) (set p)
     where
       get [] _ = Nothing
-      get [p0] t@Tree{_crumb = p1}
+      get [p0] t@Tree{crumb = p1}
         | p1 == p0   = Just t
         | otherwise = Nothing
-      get (p0:ps) Tree {_crumb = p1, _branches = bs}
+      get (p0:ps) Tree {crumb = p1, branches = bs}
         | p1 == p0   = foldr (\t acc -> acc <|> get ps t) Nothing bs
         | otherwise = Nothing
       set [] t _ = t
       set _ t Nothing = t
-      set [p0] o@Tree{_crumb = p1} (Just t)
+      set [p0] o@Tree{crumb = p1} (Just t)
         | p1 == p0   = t
         | otherwise = o
-      set (p0:ps) o@Tree{_crumb = p1} t@(Just _)
-        | p1 == p0 = o & branches . mapped %~ (\b -> set ps b t)
+      set (p0:ps) o@Tree{crumb = p1} t@(Just _)
+        | p1 == p0 = o & field @"branches" % mapped %~ (\b -> set ps b t)
         | otherwise = o
 
 instance Eq a => Ixed (Tree a b)
 
 treeSize :: Tree String FS -> [Int]
-treeSize Tree{ _branches = bs
-             , _values = fs}
+treeSize Tree{ branches = bs
+             , values = fs}
   = files + sum (map head children) : fold children
   where
     size (File s _) = s
@@ -60,10 +62,10 @@ treeSize Tree{ _branches = bs
 ensurePath :: Eq a => [a] -> Tree a b -> Tree a b
 ensurePath p t = case t ^? ix p of
                    Nothing -> t & ix (noLast p)
-                                . branches
-                                %~ (Tree{ _crumb = last p
-                                        , _branches = []
-                                        , _values = []} :)
+                                % field @"branches"
+                                %~ (Tree{ crumb = last p
+                                        , branches = []
+                                        , values = []} :)
                    Just _  -> t
                 where
                   noLast []     = []
@@ -115,8 +117,8 @@ parseCommands lines = go lines (WalkState { _dir = []
       (Cd d, t) -> let path = d : state ^. dir
                        in go t (state & dir .~ path & dirTree %~ ensurePath (reverse path))
       (LS l, t) -> let newState = state & dirTree
-                                        . ix (state ^. dir . to reverse)
-                                        . values %~ (l ++)
+                                        % ix (state ^. dir % to reverse)
+                                        % field @"values" %~ (l ++)
                        in go t newState
 
     pcmd [] = error "Can't parse no lines as command"

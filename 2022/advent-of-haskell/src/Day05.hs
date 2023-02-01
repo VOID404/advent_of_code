@@ -6,9 +6,9 @@ module Day05
 where
 
 import           Control.Exception (Exception)
-import           Control.Lens
 import           Data.Char         (isAlpha, isAlphaNum)
 import           Data.List         (transpose)
+import           Optics            (Ixed (ix), (&), (.~))
 
 data BadStack = BadStack [String] Move deriving (Show)
 

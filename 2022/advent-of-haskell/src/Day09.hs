@@ -3,9 +3,9 @@
 module Day09 where
 
 import           Control.Exception (Exception, throw)
-import           Control.Lens
 import           Control.Monad     (guard)
 import           Data.List         (nub, sortOn)
+import           Optics
 import           Prelude           hiding (Left, Right)
 
 type Point = (Int, Int)

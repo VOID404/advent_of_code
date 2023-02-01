@@ -1,6 +1,6 @@
 module Day08 where
 
-import           Control.Lens
+import Optics
 import           Data.Char    (digitToInt)
 import           Utils.Day08
 
