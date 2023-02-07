@@ -1,5 +1,5 @@
 (defpackage day12
-  (:use :cl)
+  (:use :cl :iterate)
   (:export))
 
 (in-package :day12)
@@ -63,18 +63,19 @@ abdefghi")
           ((eql :right dir) (cons (1+ x) y)))))
 
 (defun in-range (point)
+  "Check if point is not out of bounds"
   (let ((x (car point))
         (y (cdr point)))
     (and (between x 0 *width*)
          (between y 0 *height*))))
 
 (defun neighbours (point)
-  (loop
-    :for d :in '(:left :right :up :down)
-    :for p = (move point d)
-    :if (and (not (equal point p))
+  (iter
+    (for d in '(:left :right :up :down))
+    (for p = (move point d))
+    (if (and (not (equal point p))
              (in-range p))
-      :collect p))
+        (collect p))))
 
 (defmacro at (point &optional (map '*map*))
   `(aref ,map (cdr ,point) (car ,point)))
@@ -84,59 +85,53 @@ abdefghi")
         (come-from (make-hash-table :test #'equal)))
     (setf (gethash start distances) 0)
     (setf (gethash start come-from) nil)
-    (loop
-      :with open = (list start)
-      :until (null open)
-      :for p = (pop open)
-      :do (loop
-            :with dist0 = (gethash p distances)
-            :with val0 = (at p)
-            :for n :in (neighbours p)
-            :for dist = (gethash n distances)
-            :for val = (at n)
-            :if (and (>= (- val val0) -1)
-                     (or (not dist)
-                         (< (1+ dist0) dist)))
-              :do
-                (setf (gethash n distances) (1+ dist0))
-                (setf (gethash n come-from) p)
-                (setf open (nconc open (list n)))))
+    (iter
+      (with open = (list start))
+      (until (null open))
+      (for p = (pop open))
+      (iter
+        (with dist0 = (gethash p distances))
+        (with val0 = (at p))
+
+        (for n in (neighbours p))
+        (for dist = (gethash n distances))
+        (for val = (at n))
+
+        (when (and (>= (- val val0) -1)
+                   (or (not dist)
+                       (< (1+ dist0) dist)))
+          (setf (gethash n distances) (1+ dist0))
+          (setf (gethash n come-from) p)
+          (collecting n into to-open))
+        (finally
+         (setf open (nconc open to-open)))))
     (values come-from distances)))
 
 (defun positions (item sequence &key (test #'eql))
-  (loop
-    :for i :across sequence
-    :and pos :from 0
-    :if (funcall test i item)
-      :collect pos))
+  (iterate
+    (for i :in-vector sequence)
+    (for pos :from 0)
+    (if (funcall test i item)
+        (collect pos))))
 
 (defun basic ()
   (multiple-value-bind (come-from distance) (dijkstra *end*)
     (gethash *start* distance)))
 
 (defun bonus ()
-  (let ((starts (mapcar #'seq->vec (positions 0 *raw-map*))))
-    (multiple-value-bind (come-from distances) (dijkstra *end*)
-      (loop
-        :with minDist = nil
-        :with min = nil
-        :for pos :in starts
-        :for dist = (gethash pos distances)
-        :if (and dist
-                 (or (null minDist)
-                     (< dist minDist)))
-          :do
-            (setf minDist dist)
-            (setf min pos)
-        :finally (return minDist)))))
+  (iter
+    (with starts = (mapcar #'seq->vec (positions 0 *raw-map*)))
+    (with distances = (nth-value 1 (dijkstra *end*)))
+    (for pos in starts)
+    (for dist = (gethash pos distances))
+    (when dist
+      (minimizing dist))))
 
 (defun draw-path (points map)
-  (loop
-    :for p :in points
-    :do
-       (setf (at p map) #\#)
-    :finally
-       (return map)))
+  (iter
+    (for p in points)
+    (setf (at p map) #\#)
+    (finally (return map))))
 
 (defun s-to-e (map)
   (parse-str map)
@@ -153,5 +148,5 @@ abdefghi")
     :finally (let ((pretty-map (draw-path points m)))
                (dotimes (y *height*)
                  (dotimes (x *width*)
-                    (format t "~a" (aref pretty-map y x)))
+                   (format t "~a" (aref pretty-map y x)))
                  (terpri)))))
