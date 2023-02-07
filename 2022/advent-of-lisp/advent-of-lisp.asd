@@ -7,7 +7,9 @@
                 :components
                 ((:file "day01")
                  (:file "day11")
-                 (:file "day12"))))
+                 (:file "day12")
+                 (:file "day13")
+                 (:file "day14"))))
   :description ""
   :in-order-to ((test-op (test-op "advent-of-lisp/tests"))))
 
