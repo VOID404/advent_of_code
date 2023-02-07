@@ -14,6 +14,16 @@
   (x 0 :type fixnum)
   (y 0 :type fixnum))
 
+(defun point-add (a b)
+  (declare (optimize (speed 3) (safety 0) (debug 0))
+           (type point a b))
+  (let ((x1 (point-x a))
+        (y1 (point-y a))
+        (x2 (point-x b))
+        (y2 (point-y b)))
+    (make-point :x (the fixnum (+ x1 x2))
+                :y (the fixnum (+ y1 y2)))))
+
 (defstruct bounds
   (x-min nil :type fixnum)
   (x-max nil :type fixnum)
@@ -44,6 +54,24 @@
   (the fixnum (- (bounds-y-max bound)
                  (bounds-y-min bound)
                  -1)))
+
+(defun map-bounds (map)
+  (let ((height (array-dimension map 0))
+        (width (array-dimension map 1)))
+    (make-bounds :x-min 0 :x-max (1- width)
+                 :y-min 0 :y-max (1- height))))
+
+(defun point-in-bounds (point bounds)
+  (declare (type bounds bounds)
+           (type point point))
+  (let ((x (point-x point))
+        (y (point-y point)))
+    (and (<= x (bounds-x-max bounds))
+         (>= x (bounds-x-min bounds))
+         (<= y (bounds-y-max bounds))
+         (>= y (bounds-y-min bounds)))))
+
+;; ---------------------Read input-----------------------------
 
 (defun read-points (&optional (stream *standard-input*))
   "Returns list of points and bounds"
@@ -115,19 +143,118 @@
          (width (bounds-width bounds))
          (height (1+ (bounds-y-max bounds)))
          (len (* height width))
-         (map (make-array len ;:element-type 'boolean
-                              :initial-element 0)))
+         (map (make-array len :element-type 'boolean
+                              :initial-element nil)))
     (iter
       (for i index-of-vector map)
       (for x = (+ min-x (mod i width)))
       (for y = (floor i width))
       (for p = (make-point :x x :y y))
       (when (obstacle-collides p obstacles)
-        (setf (aref map i) 1)))
+        (setf (aref map i) t)))
     (make-array (list height width)
                 :element-type 'boolean
                 :displaced-to map)))
 
+;; ------------------------------------------------------------
+
+(defparameter +down+ (make-point :y 1))
+(defparameter +up+ (make-point :y -1))
+(defparameter +left+ (make-point :x -1))
+(defparameter +right+ (make-point :x 1))
+
+(defun widen (map n)
+  "Widen map by n on left and right"
+  (let* ((width (+ (* 2 n)
+                   (array-dimension map 1)))
+         (height (array-dimension map 0))
+         (new-map (make-array (list height width)
+                              :element-type 'boolean
+                              :initial-element nil)))
+    (iter
+      (for y from 0 below height)
+      (iter
+        (for x from 0 below width)
+        (setf (aref new-map y x) (ignore-errors (aref map y (- x n)))))
+      (finally (return new-map)))))
+
+(defmacro widenf (map n)
+  "Widen map by n on left and right"
+  (let ((num (gensym)))
+    `(let ((,num ,n))
+      (setf ,map (widen ,map ,num)))))
+
+(defun print-map (map)
+  (dotimes (y (array-dimension map 0))
+    (dotimes (x (array-dimension map 1))
+      (if (aref map y x)
+          (princ #\#)
+          (princ #\.)))
+    (fresh-line)))
+
+(defvar *bounds*)
+
+(defun open-space (point map &optional (bounds *bounds*))
+  "Return t if space is empty"
+  (let ((x (point-x point))
+        (y (point-y point)))
+    (not (and
+          (point-in-bounds point bounds)
+          (the boolean (aref map y x))))))
+
+(defun drop (point map bounds)
+  (iter
+    (with *bounds* = bounds)
+    (initially
+     (unless (open-space point map)
+       (return nil)))
+    (for p initially point then next)
+    (with next = nil)
+    (for down = (point-add p +down+))
+    (for left = (point-add down +left+))
+    (for right = (point-add down +right+))
+    (cond
+      ((open-space down map) (setf next down))
+      ((open-space left map) (setf next left))
+      ((open-space right map) (setf next right))
+      (t (return p)))
+    (unless (point-in-bounds next *bounds*)
+      (return nil))))
+
+(defun simulate (generator map &optional (bounds (map-bounds map)))
+  (iter
+    (for d = (drop generator map bounds))
+    (while d)
+
+    (counting t)
+    (let ((x (point-x d))
+          (y (point-y d)))
+      (setf (aref map y x) t))))
+
 (defun basic (&optional (stream *standard-input*))
   (multiple-value-bind (obstacles bounds) (read-obstacles stream)
-    (obstacles->map obstacles bounds)))
+    (let* ((map (obstacles->map obstacles bounds))
+           (fixed-x (- 500 (bounds-x-min bounds)))
+           (generator (make-point :x fixed-x)))
+      (simulate generator map))))
+
+(defun add-floorf (map)
+  (let ((width (array-dimension map 1))
+        (height (array-dimension map 0)))
+    (iter
+      (with y = (1- height))
+      (for x from 0 below width)
+      (setf (aref map y x) t))))
+
+(defun bonus (&optional (stream *standard-input*))
+  (multiple-value-bind (obstacles bounds) (read-obstacles stream)
+    (let* ((map (obstacles->map obstacles bounds))
+           (height (array-dimension map 0))
+           (width (array-dimension map 1))
+           (margin 1000)
+           (fixed-x (+ margin (- 500 (bounds-x-min bounds))))
+           (generator (make-point :x fixed-x)))
+      (adjust-array map (list (+ 2 height) width) :initial-element nil)
+      (widenf map margin)
+      (add-floorf map)
+      (time (simulate generator map)))))
