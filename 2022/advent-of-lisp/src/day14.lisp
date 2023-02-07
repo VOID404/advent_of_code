@@ -175,7 +175,9 @@
       (for y from 0 below height)
       (iter
         (for x from 0 below width)
-        (setf (aref new-map y x) (ignore-errors (aref map y (- x n)))))
+        (setf (aref new-map y x) (if (array-in-bounds-p map y (- x n))
+                                     (aref map y (- x n))
+                                     nil)))
       (finally (return new-map)))))
 
 (defmacro widenf (map n)
