@@ -10,10 +10,12 @@
 (defparameter *sample* "498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9")
 
+(declaim (inline make-point))
 (defstruct point
   (x 0 :type fixnum)
   (y 0 :type fixnum))
 
+(declaim (inline point-add))
 (defun point-add (a b)
   (declare (optimize (speed 3) (safety 0) (debug 0))
            (type point a b))
@@ -21,8 +23,8 @@
         (y1 (point-y a))
         (x2 (point-x b))
         (y2 (point-y b)))
-    (make-point :x (the fixnum (+ x1 x2))
-                :y (the fixnum (+ y1 y2)))))
+    (make-point :x (+ x1 x2)
+                :y (+ y1 y2))))
 
 (defstruct bounds
   (x-min nil :type fixnum)
@@ -260,3 +262,28 @@
       (widenf map margin)
       (add-floorf map)
       (time (simulate generator map)))))
+
+(defvar *map*)
+(defvar *generator*)
+
+(defun copy-array (a)
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (do ((b (make-array (array-dimensions a)
+                      :element-type 'boolean))
+       (n 0 (1+ n)))
+      ((>= n (array-total-size a)) b)
+    (setf (row-major-aref b n) (row-major-aref a n))))
+
+(defun parse-data (&optional (stream *standard-input*))
+  (multiple-value-bind (obstacles bounds) (read-obstacles stream)
+    (let* ((map (obstacles->map obstacles bounds))
+           (height (array-dimension map 0))
+           (width (array-dimension map 1))
+           (margin 1000)
+           (fixed-x (+ margin (- 500 (bounds-x-min bounds))))
+           (generator (make-point :x fixed-x)))
+      (adjust-array map (list (+ 2 height) width) :initial-element nil)
+      (widenf map margin)
+      (add-floorf map)
+      (setf *map* map)
+      (setf *generator* generator))))
